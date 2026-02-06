@@ -1,123 +1,185 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hey Emily 💌</title>
-
   <style>
     body {
       margin: 0;
       height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #fff0f5;
       font-family: Arial, sans-serif;
+      background: #fff0f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       text-align: center;
+      overflow: hidden;
+      padding: 24px;
+    }
+
+    .card {
+      max-width: 640px;
+      background: rgba(255,255,255,0.75);
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 18px;
+      padding: 28px 22px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+      backdrop-filter: blur(6px);
     }
 
     h1 {
+      margin: 0 0 10px;
       color: #d6336c;
-      margin-bottom: 10px;
+      font-size: 44px;
     }
 
     p {
+      margin: 8px 0;
       color: #333;
       font-size: 18px;
-      margin: 8px 0;
+      line-height: 1.45;
     }
 
-    .container {
-      position: relative;
-      width: 320px;
-      height: 260px;
+    .question {
+      margin-top: 18px;
+      font-size: 22px;
+      font-weight: 700;
     }
 
     .buttons {
+      margin-top: 18px;
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
       position: relative;
-      margin-top: 25px;
-      height: 120px;
     }
 
     button {
-      padding: 10px 22px;
-      font-size: 16px;
       border: none;
-      border-radius: 8px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-size: 18px;
       cursor: pointer;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+      transition: transform 0.08s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:active {
+      transform: scale(0.98);
     }
 
     #yesBtn {
-      background: #d6336c;
+      background: #22c55e;
       color: white;
+      min-width: 110px;
     }
 
+    /* The NO button becomes "free-floating" so it can run away */
     #noBtn {
-      background: #aaa;
+      background: #ef4444;
       color: white;
-      position: absolute;
-      left: 140px;
-      top: 50px;
+      min-width: 110px;
+      position: fixed;
+      left: 50%;
+      top: 58%;
+      transform: translate(-50%, -50%);
+    }
+
+    .result {
+      margin-top: 16px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #111;
+      display: none;
+    }
+
+    .tiny {
+      margin-top: 10px;
+      font-size: 14px;
+      color: rgba(0,0,0,0.55);
     }
   </style>
 </head>
-
 <body>
-  <div class="container">
+  <div class="card">
     <h1>Hey Emily 🌸</h1>
+    <p>Since I can’t really ask you in person right now, I thought I’d do this instead.</p>
 
-    <p>Since I can’t really ask you in person right now,</p>
-    <p>I thought I’d do this instead.</p>
-
-    <p><strong>Will you be my Valentine? 💖</strong></p>
+    <p class="question">Will you be my Valentine? 💖</p>
 
     <div class="buttons">
-      <button id="yesBtn">Yes 💕</button>
+      <button id="yesBtn">Yes</button>
       <button id="noBtn">No</button>
     </div>
+
+    <div id="result" class="result">Yay 😌💗 I’m taking you out. No debate.</div>
+    <div class="tiny">(Try pressing “No”… good luck)</div>
   </div>
 
   <script>
     const noBtn = document.getElementById("noBtn");
-    const buttons = document.querySelector(".buttons");
+    const yesBtn = document.getElementById("yesBtn");
+    const result = document.getElementById("result");
 
     function moveNoButton() {
-      const area = buttons.getBoundingClientRect();
-      const btn = noBtn.getBoundingClientRect();
+      const padding = 20;
+      const btnRect = noBtn.getBoundingClientRect();
 
-      const maxX = area.width - btn.width;
-      const maxY = area.height - btn.height;
+      // Clamp max so it never goes off-screen
+      const maxX = Math.max(padding, window.innerWidth - btnRect.width - padding);
+      const maxY = Math.max(padding, window.innerHeight - btnRect.height - padding);
 
-      const x = Math.random() * maxX;
-      const y = Math.random() * maxY;
+      const x = Math.random() * (maxX - padding) + padding;
+      const y = Math.random() * (maxY - padding) + padding;
 
-      noBtn.style.left = x + "px";
-      noBtn.style.top = y + "px";
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top = `${y}px`;
+      noBtn.style.transform = "none";
+      noBtn.style.display = "inline-block";      // never disappear
+      noBtn.style.visibility = "visible";
+      noBtn.style.opacity = "1";
     }
 
+    // Desktop: run away when mouse gets close
     noBtn.addEventListener("mouseenter", moveNoButton);
-    noBtn.addEventListener("mouseover", moveNoButton);
+
+    // If she somehow clicks it, it still runs away
     noBtn.addEventListener("click", (e) => {
       e.preventDefault();
       moveNoButton();
     });
 
-    noBtn.addEventListener(
-      "touchstart",
-      (e) => {
-        e.preventDefault();
-        moveNoButton();
-      },
-      { passive: false }
-    );
+    // Mobile: run away when she tries to tap it
+    noBtn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      moveNoButton();
+    }, { passive: false });
 
-    document.getElementById("yesBtn").addEventListener("click", () => {
-      document.body.innerHTML = `
-        <div style="text-align:center;">
-          <h1 style="color:#d6336c;">💖 Yay 💖</h1>
-          <p style="font-size:20px;">I’m really excited.</p>
-        </div>
-      `;
+    yesBtn.addEventListener("click", () => {
+      result.style.display = "block";
+      // IMPORTANT: do NOT hide the No button anymore
+      // noBtn.style.display = "none";
+      yesBtn.textContent = "Locked in ✅";
+      yesBtn.disabled = true;
+      yesBtn.style.opacity = "0.9";
+    });
+
+    window.addEventListener("load", () => {
+      noBtn.style.left = "55%";
+      noBtn.style.top = "60%";
+    });
+
+    window.addEventListener("resize", () => {
+      const rect = noBtn.getBoundingClientRect();
+      if (rect.right > window.innerWidth || rect.bottom > window.innerHeight || rect.left < 0 || rect.top < 0) {
+        moveNoButton();
+      }
     });
   </script>
 </body>
